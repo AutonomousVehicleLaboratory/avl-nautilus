@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-http # replace with ${USER_NAME}-http
+  labels:
+    k8s-app: example-http
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: example-http
+  template:
+    metadata:
+      labels:
+        k8s-app: example-http
+    spec:
+      containers:
+        - image: rclone/rclone
+          name: http-server
+          command: ["sh", "-c", "sleep infinity"]
+          # ports:
+          # - containerPort: 8000
+          resources:
+            requests:
+              cpu: "1"
+              memory: 4Gi
+            limits:
+              cpu: "2"
+              memory: 8Gi
+          volumeMounts:
+            - name: cogrob-avl-west-vol
+              mountPath: /cogrob-avl-west-vol
+      volumes:
+        - name: cogrob-avl-west-vol
+          persistentVolumeClaim:
+            claimName: cogrob-avl-west-vol
