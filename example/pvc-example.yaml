@@ -6,7 +6,6 @@ metadata:
   namespace: cogrob
 spec:
   storageClassName: rook-cephfs # slow-vol
-  # storageClassName: rook-cephfs-haosu  # fast-vol
   accessModes:
     - ReadWriteMany
   resources:
