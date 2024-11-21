@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-project-deploy # replace with "${USER_NAME}-{PROJECT_NAME}_deploy"
+  labels:
+    k8s-app: user-project-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: user-project-deploy
+  template:
+    metadata:
+      labels:
+        k8s-app: user-project-deploy
+    spec:
+      containers:
+        - name: gpu-container
+          image: docker-image-name # docker image
+          # imagePullPolicy: Always
+          command: ["sh", "-c", "sleep infinity"]
+          # ports:
+          # - containerPort: 8000
+          resources:
+            requests:
+              cpu: "8"
+              memory: "50Gi"
+              nvidia.com/gpu: "1"
+              ephemeral-storage: 100Gi
+            limits:
+              cpu: "8"
+              memory: "50Gi"
+              nvidia.com/gpu: "1"
+              ephemeral-storage: 100Gi
+          volumeMounts:
+            - name: dshm
+              mountPath: /dev/shm
+            - name: cogrob-avl-west-vol
+              mountPath: /cogrob-avl-west-vol
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+        - name: cogrob-avl-west-vol
+          persistentVolumeClaim:
+            claimName: cogrob-avl-west-vol
+      # uncomment below if you need to use tainted nodes
+      # tolerations:
+      #   - key: "nautilus.io/cogrob"
+      #     operator: "Equal"
+      #     value: "true"
+      #     effect: "NoSchedule" 
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nvidia.com/gpu.product
+                    operator: In
+                    values:
+                      - NVIDIA-GeForce-RTX-3090
+                      - NVIDIA-A10
+                      # - NVIDIA-RTX-A5000
+                      # - Quadro-RTX-6000
+                      # - Tesla-V100-SXM2-32GB
+                      # - NVIDIA-A40
+                      # - NVIDIA-RTX-A6000
+                      # - Quadro-RTX-8000
+                      # - NVIDIA-A100-SXM4-80GB
+                      # - NVIDIA-A100-PCIE-40GB
+                      # - NVIDIA-TITAN-RTX
+                  # example to exclude some host in case of error
+                  # - key: kubernetes.io/hostname
+                  #   operator: NotIn
+                  #   values:
+                  #     - my.hostname.net

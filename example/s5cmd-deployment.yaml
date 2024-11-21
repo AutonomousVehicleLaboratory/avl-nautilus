@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-s5cmd # replace with ${USER_NAME}-http
+  labels:
+    k8s-app: user-s5cmd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: user-s5cmd
+  template:
+    metadata:
+      labels:
+        k8s-app: user-s5cmd
+    spec:
+      containers:
+        - image: peakcom/s5cmd
+          name: s5cmd
+          command: ["sh", "-c", "sleep infinity"]
+          # ports:
+          # - containerPort: 8000
+          resources:
+            requests:
+              cpu: "2"
+              memory: 8Gi
+            limits:
+              cpu: "2"
+              memory: 8Gi
+          volumeMounts:
+            - name: cogrob-avl-west-vol
+              mountPath: /cogrob-avl-west-vol
+      volumes:
+        - name: cogrob-avl-west-vol
+          persistentVolumeClaim:
+            claimName: cogrob-avl-west-vol
