@@ -19,9 +19,14 @@ spec:
           memory: "8Gi"
           nvidia.com/gpu: "1"
       volumeMounts:
+        - name: dshm
+          mountPath: /dev/shm
         - name: cogrob-avl-west-vol
           mountPath: /avl-west
   volumes:
+    - name: dshm
+      emptyDir:
+        medium: Memory
     - name: cogrob-avl-west-vol
       persistentVolumeClaim:
         claimName: cogrob-avl-west-vol
