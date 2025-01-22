@@ -36,7 +36,7 @@ Local storage is associated with each node. They are best for small to mid size 
 
 PVC keep the data even after your pod ends. Thus they are used to store large public datasets to be shared by the lab and also store key results and checkpoints in case pods crash. Node that they are optimized for large files, and not good at handling many small files.
 
-S3 can be a bridge to transfer data between nautilus and your computers. But you can also use it to host your dataset. They are good at handling small files. You can request an S3 account on matrix chat for Nautilus.
+S3 can be a bridge to transfer data between nautilus and your computers. But you can also use it to host your dataset. They are good at handling small files. You can request an S3 account on matrix chat for Nautilus. [See further down on how to setup s5cmd]
 
 To create a PVC, use the [pvc example](example/pvc-example.yaml). 
 You will need to change the name: user-west-vol and adjust specifications if needed. PVC size can be updated on the fly without restarting the running node.
@@ -74,7 +74,30 @@ While you can attach to your node and check the resource use, using [Grafana](ht
 2. [Namespace CPU](https://grafana.nrp-nautilus.io/d/85a562078cdf77779eaa1add43ccec1e/kubernetes-compute-resources-namespace-pods?orgId=1&refresh=10s) Monitor the CPU and memory for pods in this namespace.
 3. [Node GPU](https://grafana.nrp-nautilus.io/d/Tf9PkuSik/k8s-nvidia-gpu-node?orgId=1&refresh=15m) Check the GPU status on a specific node.
 
+### s5cmd Setup ###
+s5cmd is a useful tool for getting large amounts of data onto / off of nautilus.
 
+1. Install s5cmd according to your system https://github.com/peak/s5cmd
+2. Obtain your access keys for s3 from nautilus
+3. You can get your credentials (key and secret) in the user portal, Storage->S3 Keys page for public ceph pools. To get credentials for private ones, contact the admin managing particular S3 storage. You should receive an email with your keys
+4. Create a file in ~/.aws/credentials with the following contents
+   
+[default]
+
+aws_access_key_id = 'your access key from step 3'
+
+aws_secret_access_key = 'your access secret key from step 3'
+
+aws_region = us-west-1
+
+5. create an alias in your bashrc to make things easy
+6. alias s5cmd-west='/usr/bin/s5cmd --credentials-file /home/username/.aws/credentials --endpoint-url https://s3-west.nrp-nautilus.io/'
+7. source your bashrc again and test to see if things work
+8. s5cmd-west ls  should produce no errors and not show anything
+9. s5cmd-west mb s3://test-bucket should create a bucket which should then show up with the ls command above.
+10. remove the test bucket 's5cmd-west rb s3://test-bucket'
+
+useful link https://docs.nrp.ai/userdocs/storage/ceph-s3/
 
 ## Tips
 
